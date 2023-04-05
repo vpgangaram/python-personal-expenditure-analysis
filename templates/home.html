@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en" style="scroll-behavior: smooth;">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+      .hidden{
+        display: none;
+      }
+      .visible{
+        display: block;
+      }
+
+      .centered{
+      width:100%;
+      display: flex;
+      justify-content: center;
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 40px;
+        font-family: Arial, 
+            Helvetica, sans-serif;
+        background: linear-gradient(
+            to right, #f32170, #ff6b08,
+             #cf23cf, #eedd44);
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        padding-top: 30px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+
+      .butt{
+        width:50%;
+        display: inline-block;
+        
+      }
+
+      td,tr{
+        text-align: center;
+      }
+    </style>
+        <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+        </script>
+  </head>
+
+
+  <body>
+  <div class="heading">
+    <h2>Personal Expenditure</h2>
+  </div>
+
+<!-- --------------------------------------------------------------------------------------------------------FORM-------------------------------------------------------------------------------------------------- -->
+    
+
+<section class="form">
+<div class="container" >
+      <div class="row">
+        <div class="col-sm">
+        </div>
+        <div class="col-sm" style="border: 1px solid black; margin-top: 50px; border-radius: 10px;padding: 20px; margin-bottom: 70px; margin-top: 70px;">
+          <form action="{{ url_for('add_expense') }}" method="POST" role="dialog">
+          
+            <div class="form-group"  style="padding-bottom: 10px;" >
+            <label for="expense" style="padding-bottom: 8px;"><i class="fa-solid fa-coins"></i>  Expense</label>
+            <input type="number" class="form-control" id="expense" name="exp"  placeholder="Enter expenditure" required>
+            </div>
+  
+            <div class="form-group" style="padding-bottom: 10px;">
+            <label for="cat" style="padding-bottom: 8px;"><i class="fa-solid fa-boxes-stacked"></i>  Category</label>
+            <select class="form-control" id="cat" placeholder="Select" name="catg" required>
+                <ul class="form-control">
+                    <option value="">Select an option</option>
+                    <option>Fuel</option>
+                    <option>Hotel</option>
+                    <option>Shopping</option>
+                    <option>Utility</option>
+                    <option>Clothing</option>
+                    <option>Entertainment</option>
+                    <option>Other</option>
+                </ul>
+            </select>
+            </div>
+  
+            <div class="form-group" style="padding-bottom: 10px;">
+            <label for="date" style="padding-bottom: 8px;"><i class="fa-solid fa-calendar-days"></i>  Date</label>
+            <input type="date" class="form-control" name="date" id="date" required>
+            </div>
+  
+            <div class="form-group"style="padding-bottom: 30px;">
+                <label for="description"  style="padding-bottom: 8px;"><i class="fa-solid fa-message"></i>  Description</label>
+                <input type="text" class="form-control" id="description" name="desc"  placeholder="description" required>
+                </div>
+  
+               <button type="submit" class="form-control btn btn-success"> Add Expenditure</button>
+  
+        </form>        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+    </div>
+    <br>
+</section>
+    
+
+<!-- --------------------------------------------------------------------------------------------------TABLE---------------------------------------------------------------------------------------------------- -->
+  <div class="conatainer">
+
+    </div>
+
+    <hr>
+    <div class="centered">  
+      <button class="butt btn btn-warning" onclick="showTableView()" style="margin: 5px;"> 
+        Table
+      </button>
+    
+      <button class="butt btn btn-warning" onclick="showChartView()" style="margin: 5px;"> 
+        Insights
+      </button>
+    </div>
+    <hr>
+
+
+      <div style="border:1px solid black; padding: 20px; margin:30px; border-radius: 10px; margin-top: 60px;" class="visible" id="tableView">
+        <table class="table table-responsive-lg">
+            <thead>
+              <tr>
+                <th scope="col"><i class="fa-solid fa-hashtag"></i>  ID</th>
+                <th scope="col"><i class="fa-solid fa-coins"></i>  Expense</th>
+                <th scope="col"><i class="fa-solid fa-boxes-stacked"></i>  Category</th>
+                <th scope="col"><i class="fa-solid fa-calendar-days"></i>  Date</th>
+                <th scope="col"><i class="fa-solid fa-message"></i>  Description</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            
+            {% for e in expense_data %}
+              <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ e[1] }}</td>
+                <td>{{ e[2] }}</td>
+                <td>{{ e[3] }}</td>
+                <td>{{ e[4] }}</td>
+                <td>
+
+                  <a href="{{ url_for('delete_entry', id=e[0]) }}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure')">Delete</a>
+                  
+                </td>
+                </tr>
+            {% endfor %}
+          </table>
+      </div>
+
+
+
+
+            <div id="chartView" class=" centered hidden" >
+              <canvas id="myChart" style="width:100%;max-width:700px;margin-top: 60px; margin: 10%;"></canvas>
+            </div>
+
+
+
+    
+    <!-- ------------------------------------------------------------------------------------------jAVASCRIPT-----------------------------------------------------------------------------------------  -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous">
+
+    </script>
+    <script src="https://kit.fontawesome.com/48816f541a.js" crossorigin="anonymous"></script>  
+
+
+    <script>
+
+
+      let tableView = document.getElementById("tableView")
+      console.log(tableView)
+      
+    
+      const showTableView = () =>{
+        console.log("table View")
+        try {
+          chartView.classList.remove("visible")
+          chartView.classList.remove("centered")
+    
+        } catch (error) {
+          console.log(error)
+        }
+        chartView.classList.add("hidden")
+        tableView.classList.add("visible")
+        try {
+          tableView.classList.remove("hidden")
+    
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      showTableView()
+    
+      const showChartView = () =>{
+        console.log("chart view")
+        try {
+          chartView.classList.remove("hidden")
+    
+        } catch (error) {
+          console.log(error)
+        }
+        chartView.classList.add("visible")
+        chartView.classList.add("centered")
+        try {
+          tableView.classList.remove("visible")
+    
+        } catch (error) {
+          console.log(error)
+        }
+        tableView.classList.add("hidden")
+      }
+
+      // -----------------------------------------------------------------------chart-----------------------------------------------------------------------------------------------------
+      expenditure = {{ dataObjectPercentageArray|tojson }}
+      label = {{ labelArray|tojson }}
+
+      let color = []
+      let dynamicColors = function() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return "rgb(" + r + "," + g + "," + b + ")";
+      };
+      for(let i=0;i<expenditure.length;i++){
+        color.push(dynamicColors())
+      }
+
+        new Chart("myChart", {
+          type: "doughnut",
+          data: {
+            datasets: [{
+              data:expenditure,
+   
+            backgroundColor:color,
+
+    
+            }],
+            labels:label,
+    
+            
+          }
+    
+    
+        });
+
+        </script>
+
+  </body>
+</html>
+
+
